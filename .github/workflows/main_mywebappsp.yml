@@ -59,5 +59,8 @@ jobs:
         with:
           app-name: 'MyWebAppSp'
           slot-name: 'Production'
-          package: ${{env.DOTNET_ROOT}}/myapp
+          package: './NewSprintEvaluationAPI/myapp'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_643588FD6C93411EB9D63DFDA3E863DD }}
+
+
+
