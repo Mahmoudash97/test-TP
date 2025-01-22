@@ -17,9 +17,11 @@ namespace TeamProject.Function
         [Function(nameof(VideoProcessorTrigger))]
         public async Task Run(
             [BlobTrigger("videos/{name}", Connection = "AzureWebJobsStorage")] Stream stream, 
-            string name)
+            string name,
+            FunctionContext context)
         {
-            _logger.LogInformation($"Blob trigger function started processing blob: {name}");
+            var logger = context.GetLogger<VideoProcessorTrigger>();
+            logger.LogInformation($"Blob trigger function started processing blob: {name}");
 
             try
             {
@@ -28,28 +30,28 @@ namespace TeamProject.Function
                 var content = await blobStreamReader.ReadToEndAsync();
 
                 // Log size information for debugging
-                _logger.LogInformation($"Blob name: {name} | Blob size: {stream.Length} bytes");
+                logger.LogInformation($"Blob name: {name} | Blob size: {stream.Length} bytes");
 
                 // Add logic to process the content (e.g., send to Python API for pose analysis)
-                await ProcessVideo(content, name);
+                await ProcessVideo(content, name, logger);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred while processing blob {name}: {ex.Message}");
+                logger.LogError($"An error occurred while processing blob {name}: {ex.Message}");
                 throw; // Rethrow to allow Azure to retry or handle as needed
             }
         }
 
-        private async Task ProcessVideo(string content, string name)
+        private async Task ProcessVideo(string content, string name, ILogger logger)
         {
             // Placeholder for video processing logic
             // This could involve calling the Python API or storing data in SQL Database
-            _logger.LogInformation($"Processing video: {name}");
+            logger.LogInformation($"Processing video: {name}");
 
             // Simulate processing delay
             await Task.Delay(500);
 
-            _logger.LogInformation($"Video {name} processing completed.");
+            logger.LogInformation($"Video {name} processing completed.");
         }
     }
 }
