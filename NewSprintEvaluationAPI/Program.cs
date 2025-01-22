@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using SprintEvaluationAPI.Data;
 using SprintEvaluationAPI.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,22 +17,31 @@ builder.Services.AddHttpClient<IVideoService, VideoService>(); // Registers the 
 
 // Configure database context with SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnectionString"),
+    sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null); // Adds retry logic for transient failures
+    }));
 
 // Add CORS policy for frontend/backend communication
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", builder =>
+    options.AddPolicy("AllowAllOrigins", policy =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 var app = builder.Build();
 
-// Global error handling middleware
+// Global error handling using the default ASP.NET Core middleware
 app.UseExceptionHandler("/error");
 
 // Configure the HTTP request pipeline
@@ -41,7 +51,6 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sprint Evaluation API v1");
     c.RoutePrefix = string.Empty; // Makes Swagger available at the root URL
 });
-
 
 // Enforce HTTPS and HSTS for production
 if (!app.Environment.IsDevelopment())
@@ -54,6 +63,9 @@ if (!app.Environment.IsDevelopment())
 app.UseCors("AllowAllOrigins");
 
 app.UseRouting();
+
+app.UseAuthentication(); // Enable authentication middleware if needed
+app.UseAuthorization(); // Enable authorization middleware if needed
 
 app.MapControllers(); // Maps controller endpoints
 
