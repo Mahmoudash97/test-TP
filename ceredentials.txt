@@ -1,0 +1,2 @@
+Blob SAS Url :
+https://g1teamproject.blob.core.windows.net/?sv=2022-11-02&ss=b&srt=o&sp=rwlctfx&se=2025-03-01T10:13:59Z&st=2025-01-22T02:13:59Z&spr=https&sig=7SfyP%2BJ02ku5r%2FZJCxf%2B7kktewIx5AR%2BYRqdZhHs3l8%3D

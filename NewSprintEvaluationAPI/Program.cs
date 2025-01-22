@@ -4,9 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SprintEvaluationAPI.Data;
 using SprintEvaluationAPI.Services;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,16 +18,41 @@ builder.Services.AddHttpClient<IVideoService, VideoService>(); // Registers the 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnectionString")));
 
+// Add CORS policy for frontend/backend communication
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
+// Global error handling middleware
+app.UseExceptionHandler("/error");
+
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sprint Evaluation API v1");
+    c.RoutePrefix = string.Empty; // Makes Swagger available at the root URL
+});
+
+
+// Enforce HTTPS and HSTS for production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+    app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// Enable CORS
+app.UseCors("AllowAllOrigins");
+
 app.UseRouting();
 
 app.MapControllers(); // Maps controller endpoints
