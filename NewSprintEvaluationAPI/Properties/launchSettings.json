@@ -3,7 +3,8 @@
     "SprintEvaluationAPI": {
       "commandName": "Project",
       "commandLineArgs": "--port 7139",
-      "launchBrowser": false
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5001"
     }
   }
 }
