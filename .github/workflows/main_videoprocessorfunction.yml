@@ -40,4 +40,4 @@ jobs:
           app-name: 'VideoProcessorFunction'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E95B26F31DD04C389C0BA7C7A472BD34 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C0EE961F7592418F8017D8591E5B4E9A }}
